@@ -44,7 +44,7 @@ export const loginUser = asyncHandler(async (req,res,next) => {
     res.cookie('foreverRefresh', refreshToken, {
         httpOnly: true,
         sameSite: 'strict',
-        secure: serverConfig.NODE_ENV === 'production' ? true : false,
+        secure: serverConfig.NODE_ENV === 'production',
         maxAge:7*24*60*60*1000
     })
 
@@ -94,11 +94,12 @@ export const registerUser = asyncHandler(async (req, res,next) => {
 
 
         res.cookie('foreverRefresh', refreshToken, {
-            httpOnly: true, 
-            sameSite: 'strict',
-            secure: process.env.NODE_ENV==='production',
-            maxAge:7*24*60*60*1000
+        httpOnly: true,
+        sameSite: 'strict',
+        secure: serverConfig.NODE_ENV === 'production',
+        maxAge:7*24*60*60*1000
         })
+    
         
 
         return res.status(201).json({
@@ -123,6 +124,8 @@ export const updateCart = asyncHandler(async (req, res, next) => {
     })
 
 })
+
+// For user
 
 export const onRefresh = asyncHandler(async (req, res, next) => {
     
@@ -161,15 +164,12 @@ export const onRefresh = asyncHandler(async (req, res, next) => {
     
 })
 
+
+
+
 export const logout = asyncHandler(async (req,res,next) => {
     
     const { token, user } = req
-
-    const isAlreadyBlackListed = await blackeListTokenModel.findOne({ token })
-    
-    if (isAlreadyBlackListed) {
-        throw new AppError('Unauthorized',401,false);
-    }
 
     await blackeListTokenModel.create({ token, userId: user._id })
 
@@ -181,6 +181,8 @@ export const logout = asyncHandler(async (req,res,next) => {
     })
 
 })
+
+
 
 // admin login controller
 
@@ -197,11 +199,11 @@ export const adminLogin = asyncHandler(async (req, res,next) => {
         const refreshToken = jwt.sign({credentials: `${email}_${password}`}, serverConfig.JWT_REFRESH_SECRET, { expiresIn: '7d' })
 
         res.cookie('adminRefresh', refreshToken, {
-            httpOnly: serverConfig.NODE_ENV === 'production'? true: false,
-            sameSite: 'strict',
-            secure: serverConfig.NODE_ENV === 'production', true: false,
-            maxAge:7*24*60*60*1000
-        })
+        httpOnly: true,
+        sameSite: 'strict',
+        secure: serverConfig.NODE_ENV === 'production',
+        maxAge:7*24*60*60*1000
+    })
 
 
         return res.status(200).json({
@@ -214,4 +216,59 @@ export const adminLogin = asyncHandler(async (req, res,next) => {
     }
     
     throw new AppError('Invalid email or password',400,false)
+})
+
+
+// For admin 
+
+export const onRefreshAdmin = asyncHandler(async (req, res, next) => {
+    const token = req.cookies.adminRefresh
+
+    if (!token) {
+        throw new AppError('Unauthorized',401,false)
+    }
+
+    const decoded = jwt.verify(token, serverConfig.JWT_REFRESH_SECRET)
+
+ 
+
+    await blackeListTokenModel.create({ token,userId:`${token+'admin'}` })
+    
+    const [email, password] = decoded.credentials.split('_')
+
+    const newAccessToken = jwt.sign({credentials : `${email}_${password}`}, serverConfig.JWT_ACCESS_SECRET, { expiresIn: '10m' })
+        
+        const newRefreshToken = jwt.sign({credentials: `${email}_${password}`}, serverConfig.JWT_REFRESH_SECRET, { expiresIn: '7d' })
+
+        res.cookie('adminRefresh', newRefreshToken, {
+        httpOnly: true,
+        sameSite: 'strict',
+        secure: serverConfig.NODE_ENV === 'production',
+        maxAge:7*24*60*60*1000
+    })
+
+
+        return res.status(200).json({
+            success: true,
+            message: "Token Refreshed Succesfully",
+            token: newAccessToken,
+            role:'admin'
+
+        })
+})
+
+export const adminLogout = asyncHandler(async(req, res, next) => {
+
+    const { token, userId } = req
+    
+
+    await blackeListTokenModel.create({token,userId})
+    
+    res.clearCookie('adminRefresh')
+
+    res.status(200).json({
+        success: false,
+        message:'Admin logout succesful'
+    })
+    
 })

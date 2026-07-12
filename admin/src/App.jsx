@@ -1,5 +1,5 @@
-import React, { useState } from "react";
-import { Routes, Route, Navigate } from "react-router-dom";
+import React, { useEffect, useState } from "react";
+import { Routes, Route, useLocation,useNavigate } from "react-router-dom";
 import Add from "./pages/Add";
 import List from "./pages/List";
 import Orders from "./pages/Orders";
@@ -8,12 +8,37 @@ import Sidebar from "./components/Sidebar";
 import Login from "./components/Login";
 import ProtectedRoute from "./components/ProtectedRoute";
 import { ToastContainer } from "react-toastify";
+import axios from 'axios'
 
 const App = () => {
 
   const [token, setToken] = useState(null)
+  const [loading, setLoading] = useState(true)
+  
+  const navigate = useNavigate()
+  
 
   
+
+  const onRefresh = async () => {
+    try {
+      const response = await axios.get(`${import.meta.env.VITE_BACKEND_URL}/api/users/refreshAdmin`, { withCredentials: true })
+      
+
+      setToken(response.data.token)
+      navigate('/add')
+      
+
+    } catch (error) {
+      console.log(error?.response?.data?.message||error.messsage);
+    } finally {
+      setLoading(false)
+    }
+  }
+
+  useEffect(() => {
+    onRefresh()
+  },[])
   
   return (<>
     <div className="bg-gray-50 min-h-screen">
@@ -26,7 +51,9 @@ rtl={false}
 pauseOnFocusLoss
 draggable
 pauseOnHover
-theme="light"/>
+        theme="light" />
+      {loading ? <div className="w-full h-scren flex justify-center items-center">
+      </div> : <>
       <Navbar token={token} setToken={setToken} />
       <hr/>
       {token ?        
@@ -43,6 +70,7 @@ theme="light"/>
         :
           <Login setToken={setToken}/>
         }
+        </>}
       
     </div>
       </>

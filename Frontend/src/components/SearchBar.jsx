@@ -7,18 +7,11 @@ const SearchBar = () => {
   const { search, setSearch, showSearch, setShowSearch } =
     useContext(ShopContext);
 
-    // const [visible, setVisible] = useState(false)
 
     const location = useLocation()
 
-
-    // useEffect(() => {
-    //     location.pathname.includes('Collection')? setVisible(true):setVisible(false)
-    //     },[location])
-
-    const visible = useMemo(() => {
-        return location.pathname.includes('collection') ? true : false
-    },[location])
+    const visible = location.pathname.includes('collection') ? true : false
+    
     
 
     return showSearch && visible ? (

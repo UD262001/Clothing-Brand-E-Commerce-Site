@@ -7,31 +7,27 @@ import { UserContext } from "../context/UserContext.jsx";
 import axios from "axios";
 import { toast } from "react-toastify";
 import { ShopContext } from "../context/ShopContext.jsx";
-
+import { toastConfig } from "../config/config.js";
 
 const PlaceOrder = () => {
   const [paymentMethod, setPaymentMethod] = useState(null);
 
   const { user, token } = useContext(UserContext);
-  const { getCartAmount, cartItems, setCartItems, products } = useContext(ShopContext);
-  
-console.log(products)
-  
-  console.log(cartItems);
-  
+  const { getCartAmount, cartItems, setCartItems, products } =
+    useContext(ShopContext);
 
   const [deliveryDetails, setDeliveryDetails] = useState({
     firstName: "",
     lastName: "",
     email: "",
     address: {
-      street: "test_road",
-      city: "test_city",
-      state: "test_state",
-      zipCode: "11111",
-      country: "test_country",
+      street: "",
+      city: "",
+      state: "",
+      zipCode: "",
+      country: "",
     },
-    contact: "11111111",
+    contact: "",
   });
 
   useEffect(() => {
@@ -53,8 +49,6 @@ console.log(products)
     contact,
   } = deliveryDetails;
 
-  console.log(deliveryDetails);
-
   const navigate = useNavigate();
 
   const onChangeHandler = (e) => {
@@ -67,44 +61,43 @@ console.log(products)
     });
   };
 
+  //   const initPay = (order) => {
+
+  //     const options = {
+  //       key: import.meta.env.VITE_RAZORPAY_KEY_ID,
+  //       amount: order.amount,
+  //       currency: order.currency,
+  //       name: 'Order Payment',
+  //       description: 'Order Payment',
+  //       order_id: order.id,
+  //       receipt: order.receipt,
+  //       handler: async (response) => {
+  //         console.log(response);
+  //         try {
+  //           const response = await axios.post(`${import.meta.env.VITE_BACKEND_URL}/api/orders/verifyRazorpay`,response, {
+  //             headers: {
+  //             Authorization:`Bearer ${token}`
+  //             }
+  //           })
+
+  //           navigate('/orders')
+  //           setCartItems({})
+
+  //         } catch (error) {
+  //           toast.error(error?.response?.data?.message||error.message)
+  //         }
+  //       }
+  //     }
+
+  //     const rzp = new window.Razorpay(options)
+  //     rzp.open()
+
+  // }
 
 
-  const initPay = (order) => {
+  // Input Validation
 
-    const options = {
-      key: import.meta.env.VITE_RAZORPAY_KEY_ID,
-      amount: order.amount,
-      currency: order.currency,
-      name: 'Order Payment',
-      description: 'Order Payment',
-      order_id: order.id,
-      receipt: order.receipt,
-      handler: async (response) => {
-        console.log(response);
-        try {
-          const response = await axios.post(`${import.meta.env.VITE_BACKEND_URL}/api/orders/verifyRazorpay`,response, {
-            headers: {
-            Authorization:`Bearer ${token}`
-            }
-          })
-          
-          navigate('/orders')
-          setCartItems({})
-
-        } catch (error) {
-          toast.error(error?.response?.data?.message||error.message)
-        }
-      }
-    }
-
-    const rzp = new window.Razorpay(options)
-    rzp.open()
-  
-}  
-
-
-  const withCod = async () => {
-    try {
+  const validateInput = () => {
     if (
       !firstName.trim().length ||
       !email.trim().length ||
@@ -113,35 +106,54 @@ console.log(products)
       !state.trim().length ||
       zipCode <= 0 ||
       !country.trim().length ||
-      contact <= 0 || contact.toString().length<10
+      contact <= 0 ||
+      contact.toString().length < 10
     ) {
-      throw new Error("Invalid input");
+      throw new Error("Person and Delivery Details Needed");
+    }
+    if (!paymentMethod) throw new Error("Select Payment method");
+  };
+
+
+
+  // function which returns cartData for orders
+
+  const getCartData = async () => {
+    let cartData = [];
+
+    for (const items in cartItems) {
+      let itemInfo =
+        structuredClone(products.find((product) => product._id === items)) ||
+        (await axios.get(
+          `${import.meta.env.VITE_BACKEND_URL}/api/products/single/${items}`,
+        ));
+      const { sizes, ...rest } = itemInfo?.data?.product || itemInfo;
+
+      cartData = [
+        ...cartData,
+        Object.keys(cartItems[items]).map((size) => ({
+          ...rest,
+          size,
+          quantity: cartItems[items][size],
+        })),
+      ].flat();
     }
 
-      if (!paymentMethod) throw new Error("Select Payment method");
-      
-      let cartData = []
+    return cartData;
+  };
 
-      for (const items in cartItems) {
-        for (const item in cartItems[items]) {
+  // Placer order with COD
 
-          let itemInfo = structuredClone(products.find(product => product._id === items))
-
-          if (itemInfo) {
-            delete itemInfo.sizes
-            cartData = [...cartData, { ...itemInfo, size: item, quantity: cartItems[items][item] }]
-          } else {
-            itemInfo= await axios.get(`${import.meta.env.VITE_BACKEND_URL}/api/products/single/${items}`)
-            delete itemInfo.data.product.sizes
-            cartData = [...cartData, { ...itemInfo.data.product, size: item, quantity: cartItems[items][item] }]
-          } 
-        }
-      }
-      
-
+  const withCod = async () => {
+    try {
       const response = await axios.post(
         `${import.meta.env.VITE_BACKEND_URL}/api/orders/placeOrder/cod`,
-        { ...deliveryDetails,cartData, paymentMethod, amount: getCartAmount() },
+        {
+          ...deliveryDetails,
+          cartData: await getCartData(),
+          paymentMethod,
+          amount: getCartAmount(),
+        },
         {
           headers: {
             Authorization: `bearer ${token}`,
@@ -149,144 +161,107 @@ console.log(products)
         },
       );
 
-      setCartItems({})
-      toast.success(response.message || "Order Placed Successfully", {
-        position: "top-right",
-        autoClose: 2000,
-        hideProgressBar: true,
-        closeOnClick: false,
-        pauseOnHover: true,
-        draggable: true,
-        progress: undefined,
-        theme: "light",
-      });
-
-
+      setCartItems({});
+      toast.success(
+        response.message || "Order Placed Successfully",
+        toastConfig,
+      );
 
       navigate("/orders");
     } catch (error) {
-
-      toast.error(error.response?.data?.message|| error.message || "Error Occurred! Try Again", );
+      toast.error(
+        error.response?.data?.message ||
+          error.message ||
+          "Error Occurred! Try Again",
+      );
     }
   };
 
 
 
 
-  const withStripe = async () => {
-    console.log('stripe');
-    
+  // const withStripe = async () => {
+
+  //   try {
+  //     const response = await axios.post(
+  //       `${import.meta.env.VITE_BACKEND_URL}/api/orders/placeOrder/stripe`,
+  //        {...deliveryDetails,cartData:getCartData(), paymentMethod, amount: getCartAmount() },
+  //       {
+  //         headers: {
+  //           Authorization: `bearer ${token}`,
+  //         },
+  //       },
+  //     );
+
+  //     const { session_url } = response.data
+
+  //     window.location.replace(session_url)
+
+  //   } catch (error) {
+  //     toast.error(error?.response?.data?.message||error.message || "Error Occurred! Try Again", {
+  //       position: "top-right",
+  //       autoClose: 2000,
+  //       hideProgressBar: true,
+  //       closeOnClick: false,
+  //       pauseOnHover: true,
+  //       draggable: true,
+  //       progress: undefined,
+  //       theme: "light",
+  //     });
+  //   }
+  // };
+
+  // const withRazorPay = async () => {
+  //   try {
+  //     const response = await axios.post(
+  //       `${import.meta.env.VITE_BACKEND_URL}/api/orders/placeOrder/razorpay`, {
+  //         headers: {
+  //         Authorization:`Bearer ${token}`
+  //       }},
+  //       { ...deliveryDetails, paymentMethod, amount: getCartAmount() },
+  //       {
+  //         headers: {
+  //           Authorization: `bearer ${token}`,
+  //         },
+  //       },
+  //     );
+
+  //     initPay(response.data.order)
+
+  //   } catch (error) {
+  //     toast.error(error.response?.data?.message || error
+  //       .message|| "Error Occurred! Try Again", {
+  //       position: "top-right",
+  //       autoClose: 2000,
+  //       hideProgressBar: true,
+  //       closeOnClick: false,
+  //       pauseOnHover: true,
+  //       draggable: true,
+  //       progress: undefined,
+  //       theme: "light",
+  //     });
+  //   }
+  // };
+
+  
+
+  const placeOrder = (method) => {
     try {
-       if (
-      !firstName.trim().length ||
-      !email.trim().length ||
-      !street.trim().length ||
-      !city.trim().length ||
-      !state.trim().length ||
-      zipCode <= 0 ||
-      !country.trim().length ||
-      contact <= 0 || contact.toString().length<10
-    ) {
-      throw new Error("Invalid input");
-    }
+      validateInput();
 
-      if (!paymentMethod) throw new Error("Select Payment method");
-      
-      let cartData = []
-
-      for (const items in cartItems) {
-        for (const item in cartItems[items]) {
-
-          let itemInfo = structuredClone(products.find(product => product._id === items))
-
-          if (itemInfo) {
-            delete itemInfo.sizes
-            cartData = [...cartData, { ...itemInfo, size: item, quantity: cartItems[items][item] }]
-          } else {
-            itemInfo= await axios.get(`${import.meta.env.VITE_BACKEND_URL}/api/products/single/${items}`)
-            delete itemInfo.data.product.sizes
-            cartData = [...cartData, { ...itemInfo.data.product, size: item, quantity: cartItems[items][item] }]
-          } 
-        }
+      switch (method) {
+        case "cod":
+          withCod();
+          break;
       }
 
 
-      const response = await axios.post(
-        `${import.meta.env.VITE_BACKEND_URL}/api/orders/placeOrder/stripe`,
-         {...deliveryDetails,cartData, paymentMethod, amount: getCartAmount() },
-        {
-          headers: {
-            Authorization: `bearer ${token}`,
-          },
-        },
-      );
-
-      const { session_url } = response.data
-      
-      window.location.replace(session_url)
-      
     } catch (error) {
-      toast.error(error?.response?.data?.message||error.message || "Error Occurred! Try Again", {
-        position: "top-right",
-        autoClose: 2000,
-        hideProgressBar: true,
-        closeOnClick: false,
-        pauseOnHover: true,
-        draggable: true,
-        progress: undefined,
-        theme: "light",
-      });
-    }
-  };
-
-  const withRazorPay = async () => {
-    try {
-      const response = await axios.post(
-        `${import.meta.env.VITE_BACKEND_URL}/api/orders/placeOrder/razorpay`, {
-          headers: {
-          Authorization:`Bearer ${token}`
-        }},
-        { ...deliveryDetails, paymentMethod, amount: getCartAmount() },
-        {
-          headers: {
-            Authorization: `bearer ${token}`,
-          },
-        },
+      toast.error(
+        error?.response?.data?.message ||
+          error.message ||
+          "Error While Placing Order",
       );
-
-      initPay(response.data.order)
-  
-    } catch (error) {
-      toast.error(error.response?.data?.message || error
-        .message|| "Error Occurred! Try Again", {
-        position: "top-right",
-        autoClose: 2000,
-        hideProgressBar: true,
-        closeOnClick: false,
-        pauseOnHover: true,
-        draggable: true,
-        progress: undefined,
-        theme: "light",
-      });
-    }
-  };
-
-  const placeOrder = async (method) => {
-    switch (method) {
-      case "cod":
-        withCod();
-        break;
-
-      case "stripe":
-        withStripe();
-        break;
-
-      case "razorpay":
-        withRazorPay();
-        break;
-
-      default:
-        withCod();
     }
   };
 
@@ -398,7 +373,11 @@ console.log(products)
         <div className="mt-12">
           <Title text1={"PAYMENT"} text2={"METHOD"} />
           <div className="flex gap-3 flex-col lg:flex-row ">
-            <div
+
+            {/* Stripe payment Gateway */}
+
+
+            {/* <div
               onClick={() => {
                 setPaymentMethod("stripe");
               }}
@@ -408,9 +387,12 @@ console.log(products)
                 className={`min-w-3.5 h-3.5 border border-zinc-200 rounded-full ${paymentMethod === "stripe" && "bg-green-400"}`}
               ></p>
               <img className="h-5 mx-4" src={assets.stripe_logo} alt="" />
-            </div>
+            </div> */}
 
-            <div
+            
+          {/* Razorpay Payment Gateway */}
+
+            {/* <div
               onClick={() => {
                 setPaymentMethod("razorpay");
               }}
@@ -420,7 +402,10 @@ console.log(products)
                 className={`min-w-3.5 h-3.5 border border-zinc-200 rounded-full ${paymentMethod === "razorpay" && "bg-green-400"}`}
               ></p>
               <img className="h-5 mx-4" src={assets.razorpay_logo} alt="" />
-            </div>
+            </div>   */}
+
+            
+
 
             <div
               onClick={() => {

@@ -6,6 +6,8 @@ import ShopContextProvider from "./context/ShopContext.jsx";
 import UserContextProvider from "./context/UserContext.jsx";
 import ScrollToTop from "./components/ScrollToTop.jsx";
 
+
+
 createRoot(document.getElementById("root")).render(
   <BrowserRouter>
     <UserContextProvider>

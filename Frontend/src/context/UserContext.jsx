@@ -1,14 +1,12 @@
-import { useCallback } from "react";
+import { useCallback, useMemo } from "react";
 import { useState } from "react";
 import { createContext } from "react";
 
 export const UserContext = createContext()
 
 const UserContextProvider = ({ children }) => {
-    
-    console.log('User Context');
-    
 
+   
     const [token, setToken] = useState(null)
     const [user, setUser] = useState(null)
     const [loading,setLoading]=useState(true)
@@ -18,7 +16,7 @@ const UserContextProvider = ({ children }) => {
         setUser(null)
     },[])
     
-    const value = {
+    const value = useMemo(() => ({
         token,
         setToken,
         user,
@@ -26,8 +24,7 @@ const UserContextProvider = ({ children }) => {
         refresh,
         loading,
         setLoading
-
-    }
+    }), [token, user, loading, refresh])
 
     return (
         <UserContext.Provider value={value}>

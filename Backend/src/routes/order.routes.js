@@ -20,7 +20,7 @@ router.post('/placeOrder/stripe', userAuth, placeOrdersStripe)
 
 router.post('/placeOrder/razorpay', userAuth, placeOrdersRazorPay)
 
-router.post('/verifyStripe', userAuth, verifyStripe)
+router.post('/verifyStripe', verifyStripe)
 
 router.post('/verifyRazorpay',userAuth,verifyRazorpay)
 

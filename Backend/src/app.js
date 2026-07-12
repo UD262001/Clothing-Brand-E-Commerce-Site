@@ -18,13 +18,7 @@ app.use(cors({
 app.use(express.urlencoded({ extended: true }))
 app.use(cookieParser())
 
-app.use((req, res, next) => {
-  console.log('request received');
-  
-  next()
 
-
-})
 
 
 

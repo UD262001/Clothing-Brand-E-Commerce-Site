@@ -7,17 +7,16 @@ import axios from "axios";
 import { toast } from "react-toastify";
 import { UserContext } from "../context/UserContext";
 import { Link } from "react-router-dom";
+import { toastConfig } from "../config/config";
 
 const Orders = () => {
   const { currency } = useContext(ShopContext);
+  
   const { token } = useContext(UserContext);
 
   const [orders, setOrders] = useState([]);
 
-  console.log(orders);
-  
-
-
+ 
 
     const fetchOrders = async () => {
       try {
@@ -33,16 +32,7 @@ const Orders = () => {
       } catch (error) {
         toast.error(
           error.response?.data?.message || "error while fetchig orders!",
-          {
-            position: "top-right",
-            autoClose: 2000,
-            hideProgressBar: true,
-            closeOnClick: false,
-            pauseOnHover: true,
-            draggable: true,
-            progress: undefined,
-            theme: "light",
-          },
+          toastConfig
         );
       }
     };
@@ -52,20 +42,11 @@ const Orders = () => {
   }, [token]);
 
   const ordersData = useMemo(() => {
-    // let data = []
-    // for (const order of orders) {
-    //   data=[...data,...order.items]
-    // }
-    // console.log(data);
-    // return data
-
     return orders.flatMap((order) => {
-      return order.items.map(item=>({...item,paymentMethod:order.paymentMethod,status:order.status}))
+      return order.items.map(item=>({...item,paymentMethod:order.paymentMethod,status:order.status,date:order.date}))
     });
     
   }, [orders]);
-
-  console.log(ordersData);
   
   return (
     <div className="border-t border-zinc-200 pt-16">

@@ -44,7 +44,7 @@ const Login = () => {
               password,
           },{withCredentials:true});
       
-      console.log(response)
+     
       setCredentials({
         name: "",
         email: "",

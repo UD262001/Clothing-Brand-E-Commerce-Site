@@ -17,27 +17,38 @@ const Verify = () => {
   const [searchParams] = useSearchParams();
   const navigate = useNavigate();
 
-  const orderId = searchParams.get("orderId");
-  const success = searchParams.get("success");
+  const orderId = searchParams.get('orderId');
+  const success = searchParams.get('success');
+
+
+  
 
   useEffect(() => {
+    
+    
     let timeout;
 
-    if (!token || !user?._id || !orderId || success === null) return;
+    // Guard: exit early if required URL params are missing
+    if (!orderId || success === null) {
+      
+      
+      setPaymentStatus('Failed');
+      toast.error('Missing payment verification data');
+      return;
+    }
 
     const verifyStripe = async () => {
       try {
+        const headers = token ? { Authorization: `Bearer ${token}` } : {};
         const response = await axios.post(
           `${import.meta.env.VITE_BACKEND_URL}/api/orders/verifyStripe`,
-          { success, orderId, userId: user._id },
-          {
-            headers: {
-              Authorization: `Bearer ${token}`,
-            },
-          },
+          { success, orderId, userId: user?._id },
+          { headers },
         );
 
         if (response.data.success) {
+          
+          
           setCartItems({});
           setPaymentStatus("Success");
           // toast.success('Payment Done')

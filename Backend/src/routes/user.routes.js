@@ -1,5 +1,5 @@
 import express from 'express'
-import { adminLogin, loginUser, registerUser, updateCart,onRefresh,logout } from '../controllers/users.controller.js'
+import { adminLogin, loginUser, registerUser, updateCart,onRefresh,logout, onRefreshAdmin,adminLogout } from '../controllers/users.controller.js'
 import { body } from 'express-validator'
 import adminAuth from '../middlewares/adminAuth.middleware.js'
 import { userAuth } from '../middlewares/userAuth.middleware.js'
@@ -40,11 +40,19 @@ router.post('/login',[
         .withMessage('Password must have at least 6 characters')
 ],loginUser,adminLogin)
 
-router.get('/refresh',onRefresh)
+
+router.get('/refresh', onRefresh)
+
 
 router.put('/updateCart', userAuth, updateCart)
 
 router.get('/logout',userAuth,logout)
+
+//Admin
+router.get('/refreshAdmin', onRefreshAdmin)
+
+router.get('/logoutAdmin',adminAuth,adminLogout)
+
 
 
 

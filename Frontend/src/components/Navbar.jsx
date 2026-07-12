@@ -16,32 +16,27 @@ const Navbar = React.memo(() => {
 
   const navigate = useNavigate();
 
-  const location = useLocation();
-
   const logOut = async () => {
-      try {
-        
-          await axios.get(`${import.meta.env.VITE_BACKEND_URL}/api/users/logout`, {
-              headers: {
-                  Authorization: `Bearer ${token}`,
-              },
-              withCredentials:true
-          })
+    try {
+      await axios.get(`${import.meta.env.VITE_BACKEND_URL}/api/users/logout`, {
+        headers: {
+          Authorization: `Bearer ${token}`,
+        },
+        withCredentials: true,
+      });
 
-          
+      refresh();
+      setCartItems({});
+      setShowProfileMenu(false);
 
-         refresh();
-          setCartItems({});
-          
-        navigate("/login");
-      } catch (error) {
-          console.log(error);
-          
+      navigate("/login");
+    } catch (error) {
+      console.log(error);
     }
   };
 
   return (
-    <div className="flex items-center justify-between py-5 font-medium sticky top-0 bg-white">
+    <div className="flex items-center justify-between py-5 font-medium sticky top-0 z-10 bg-white">
       <Link to={"/"}>
         <img src={assets.logo} className="w-36" alt="" />
       </Link>

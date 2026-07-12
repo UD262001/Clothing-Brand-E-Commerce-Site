@@ -78,8 +78,6 @@ const Product = () => {
             </div>
           </div>
           <button onClick={() => {
-            console.log('cart clicked');
-            
             if (!token) {
               setLastPathName(location.pathname)
               return navigate('/login')

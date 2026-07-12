@@ -3,7 +3,7 @@ import orderModel from "../models/order.models.js";
 import userModel from "../models/users.models.js";
 import AppError from "../utils/Error.js";
 import serverConfig from "../config/serverConfig.js";
-import { currency, deliveryCharge, razorpayInstance, stripe } from "../services/payment.service.js";
+import { currency, deliveryCharge, stripe } from "../services/payment.service.js";
 import { response } from "express";
 
 
@@ -32,7 +32,8 @@ export const placeOrdersStripe = asyncHandler(async (req, res, next) => {
     
     const { _id } = req.user
     const { firstName, lastName, address, amount, paymentMethod, contact, cartData } = req.body
-    const { origin } = req.headers
+    const frontendOrigin = req.headers.origin || process.env.FRONTEND_URL || process.env.CLIENT_URL || "http://localhost:5173"
+    const baseUrl = frontendOrigin.replace(/\/$/, "")
     
    
     
@@ -62,8 +63,8 @@ export const placeOrdersStripe = asyncHandler(async (req, res, next) => {
     })
     
     const session = await stripe.checkout.sessions.create({
-        success_url: `${origin}/verify?success=true&orderId=${order._id}`,
-        cancel_url: `${origin}/verify?success=false&orderId=${order._id}`,
+        success_url: `${baseUrl}/verify?success=true&orderId=${order._id}`,
+        cancel_url: `${baseUrl}/verify?success=false&orderId=${order._id}`,
         line_items,
         mode: 'payment'
     })
@@ -76,25 +77,36 @@ export const placeOrdersStripe = asyncHandler(async (req, res, next) => {
 })
 
 export const verifyStripe = asyncHandler(async (req, res, next) => {
-        const { orderId, success, userId } = req.body
     
-        if (success === 'true') {
-            await orderModel.findByIdAndUpdate(orderId, { payment: true })
+    const { orderId, success, userId } = req.body
+
+    if (!orderId) {
+        return res.status(400).json({
+            success: false,
+            message: 'Missing orderId'
+        })
+    }
+
+    const isSuccessfulPayment = success === true || success === 'true'
+
+    if (isSuccessfulPayment) {
+        await orderModel.findByIdAndUpdate(orderId, { payment: true })
+        if (userId) {
             await userModel.findByIdAndUpdate(userId, { cartData: {} })
-            return res.status(200).json({
-                success: true,
-                message: 'Payment Done'
-            })
         }
+        return res.status(200).json({
+            success: true,
+            message: 'Payment Done'
+        })
+    }
 
     await orderModel.findByIdAndDelete(orderId)
-    
-        return res.status(200).json({
-            success: false,
-            message: 'Payment Failed'
-        })
-        
+
+    return res.status(200).json({
+        success: false,
+        message: 'Payment Failed'
     })
+})
 
 
 export const placeOrdersRazorPay = asyncHandler(async (req, res, next) => {
@@ -153,6 +165,8 @@ export const verifyRazorpay = asyncHandler(async (req, res, next) => {
     })
     
 })
+
+
 
 
 export const getUserOrders = asyncHandler(async (req, res, next) => {

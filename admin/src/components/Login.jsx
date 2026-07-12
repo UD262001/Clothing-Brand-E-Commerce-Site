@@ -22,7 +22,7 @@ const Login = ({setToken}) => {
         try {
 
             
-            const res = await axios.post(`${import.meta.env.VITE_BACKEND_URL}/api/users/login`, credentials)
+            const res = await axios.post(`${import.meta.env.VITE_BACKEND_URL}/api/users/login`, credentials,{withCredentials:true})
             
             if (!res.data.success) {
                 throw new Error('Fetch Failed')

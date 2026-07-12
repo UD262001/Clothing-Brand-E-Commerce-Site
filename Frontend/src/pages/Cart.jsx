@@ -7,7 +7,7 @@ import { useNavigate } from 'react-router-dom'
 
 const Cart = () => {
 
-  console.log('Cart Page');
+  
   
 
   const { products, currency, cartItems, updateQuantity } = useContext(ShopContext)

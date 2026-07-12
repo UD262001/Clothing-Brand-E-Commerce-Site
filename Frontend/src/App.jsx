@@ -19,38 +19,32 @@ import { UserContext } from './context/UserContext'
 import { ShopContext } from './context/ShopContext'
 import axios from 'axios'
 import ScrollToTop from './components/ScrollToTop'
+import PageNotFound from './pages/PageNotFound'
 
 const App = () => {
 
- console.log('app renders');
- 
-  const { setToken, setUser,setLoading } = useContext(UserContext)
+
+  
+  const { setToken, setUser, setLoading } = useContext(UserContext)
 
   const { setCartItems } = useContext(ShopContext)
   
 
-  
-  
-
   useEffect(() => {
 
-    const controller = new AbortController()
-
-
-
-    const onRefresh = async () => {
+  const onRefresh = async () => {
       
     try {
-     
 
-      const response = await axios.get(`${import.meta.env.VITE_BACKEND_URL}/api/users/refresh`, { withCredentials: true, signal: controller.signal })
-      
-      
-
+      const response = await axios.get(`${import.meta.env.VITE_BACKEND_URL}/api/users/refresh`, { withCredentials: true })
+       
       setToken(response.data.accessToken)
       setUser(response.data.user)
       setCartItems(response.data?.user?.cartData);
-      // navigate('/')
+      
+
+     
+      
 
       
     } catch (error) {
@@ -62,9 +56,6 @@ const App = () => {
 
     onRefresh()
 
-    return () => {
-      controller.abort()
-    }
   },[])
 
   return (
@@ -72,6 +63,7 @@ const App = () => {
       <ToastContainer />
       <Navbar />
       <SearchBar />
+      <ScrollToTop/>
       <Routes>
         <Route path='/' element={<Home/>}/>
         <Route path='/collection' element={<Collection/>}/>
@@ -82,7 +74,8 @@ const App = () => {
         <Route path='/login' element={<Login/>}/>
         <Route path='/place-order' element={<ProtectedRoute><PlaceOrder/></ProtectedRoute>}/>
         <Route path='/orders' element={<ProtectedRoute><Orders/></ProtectedRoute>}/>
-        <Route path='/verify' element={<ProtectedRoute><Verify/></ProtectedRoute>}/>
+        <Route path='/verify' element={<Verify />} />
+        <Route path='*' element={<PageNotFound/>}/>
       </Routes>
       <Footer/>
 

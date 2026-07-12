@@ -1,4 +1,4 @@
-import { createContext, useCallback, useContext, useEffect, useRef, useState } from "react"
+import { createContext, useCallback, useContext, useEffect, useRef, useState, useMemo } from "react"
 // import { products } from '../assets/frontend_assets/assets'
 import { toast } from 'react-toastify';
 import axios from 'axios'
@@ -11,12 +11,6 @@ export const ShopContext = createContext()
 
 
 const ShopContextProvider = ({ children }) => {
-
-    
-    console.log('shopcontext');
-    
-    
-    
 
 
     const { token } = useContext(UserContext)
@@ -152,7 +146,6 @@ const ShopContextProvider = ({ children }) => {
 
         const updateCart = async () => {
             try { 
-                console.log('api call');
                 
                 await axios.put(`${import.meta.env.VITE_BACKEND_URL}/api/users/updateCart`, debouncedValue, {
                     headers: {
@@ -177,7 +170,7 @@ const ShopContextProvider = ({ children }) => {
         updateCart()
     }, [debouncedValue,token])
 
-    const value = {
+    const value = useMemo(() => ({
         products,
         currency,
         delivery_fee,
@@ -193,7 +186,7 @@ const ShopContextProvider = ({ children }) => {
         getCartAmount,
         lastPathName,
         setLastPathName
-    }
+    }), [products, search, showSearch, cartItems, addToCart, getCartCount, updateQuantity, getCartAmount, lastPathName])
 
     return (
 
