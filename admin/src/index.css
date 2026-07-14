@@ -1,6 +1,7 @@
 @import 'tailwindcss';
 @import url('https://fonts.googleapis.com/css2?family=Outfit:wght@100..900&display=swap');
-a.active{
+
+a .active {
     border:1px solid #c586a5;
     background-color: #ffebf5;
 }
