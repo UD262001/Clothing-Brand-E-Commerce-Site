@@ -32,8 +32,9 @@ export const placeOrdersStripe = asyncHandler(async (req, res, next) => {
     
     const { _id } = req.user
     const { firstName, lastName, address, amount, paymentMethod, contact, cartData } = req.body
-    const frontendOrigin = req.headers.origin || process.env.FRONTEND_URL || process.env.CLIENT_URL || "http://localhost:5173"
-    const baseUrl = frontendOrigin.replace(/\/$/, "")
+    const { origin } = req
+    
+    
     
    
     
@@ -63,8 +64,8 @@ export const placeOrdersStripe = asyncHandler(async (req, res, next) => {
     })
     
     const session = await stripe.checkout.sessions.create({
-        success_url: `${baseUrl}/verify?success=true&orderId=${order._id}`,
-        cancel_url: `${baseUrl}/verify?success=false&orderId=${order._id}`,
+        success_url: `${origin}/verify?success=true&orderId=${order._id}`,
+        cancel_url: `${origin}/verify?success=false&orderId=${order._id}`,
         line_items,
         mode: 'payment'
     })

@@ -43,10 +43,10 @@ const Orders = () => {
 
   const ordersData = useMemo(() => {
     return orders.flatMap((order) => {
-      return order.items.map(item=>({...item,paymentMethod:order.paymentMethod,status:order.status,date:order.date}))
+      return order.items.map(item => ({ ...item, paymentMethod: order.paymentMethod, status: order.status, date: order.date }))
     });
     
-  }, [orders]);
+  }, [orders]);  
   
   return (
     <div className="border-t border-zinc-200 pt-16">

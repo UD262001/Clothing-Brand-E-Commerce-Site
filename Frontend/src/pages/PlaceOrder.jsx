@@ -61,38 +61,38 @@ const PlaceOrder = () => {
     });
   };
 
-  //   const initPay = (order) => {
+    const initPay = (order) => {
 
-  //     const options = {
-  //       key: import.meta.env.VITE_RAZORPAY_KEY_ID,
-  //       amount: order.amount,
-  //       currency: order.currency,
-  //       name: 'Order Payment',
-  //       description: 'Order Payment',
-  //       order_id: order.id,
-  //       receipt: order.receipt,
-  //       handler: async (response) => {
-  //         console.log(response);
-  //         try {
-  //           const response = await axios.post(`${import.meta.env.VITE_BACKEND_URL}/api/orders/verifyRazorpay`,response, {
-  //             headers: {
-  //             Authorization:`Bearer ${token}`
-  //             }
-  //           })
+      const options = {
+        key: import.meta.env.VITE_RAZORPAY_KEY_ID,
+        amount: order.amount,
+        currency: order.currency,
+        name: 'Order Payment',
+        description: 'Order Payment',
+        order_id: order.id,
+        receipt: order.receipt,
+        handler: async (response) => {
+          console.log(response);
+          try {
+            const response = await axios.post(`${import.meta.env.VITE_BACKEND_URL}/api/orders/verifyRazorpay`,response, {
+              headers: {
+              Authorization:`Bearer ${token}`
+              }
+            })
 
-  //           navigate('/orders')
-  //           setCartItems({})
+            navigate('/orders')
+            setCartItems({})
 
-  //         } catch (error) {
-  //           toast.error(error?.response?.data?.message||error.message)
-  //         }
-  //       }
-  //     }
+          } catch (error) {
+            toast.error(error?.response?.data?.message||error.message)
+          }
+        }
+      }
 
-  //     const rzp = new window.Razorpay(options)
-  //     rzp.open()
+      const rzp = new window.Razorpay(options)
+      rzp.open()
 
-  // }
+  }
 
 
   // Input Validation
@@ -182,10 +182,12 @@ const PlaceOrder = () => {
 
   // const withStripe = async () => {
 
+    
   //   try {
   //     const response = await axios.post(
   //       `${import.meta.env.VITE_BACKEND_URL}/api/orders/placeOrder/stripe`,
-  //        {...deliveryDetails,cartData:getCartData(), paymentMethod, amount: getCartAmount() },
+  //       { ...deliveryDetails, cartData: getCartData(), paymentMethod, amount: getCartAmount() },
+
   //       {
   //         headers: {
   //           Authorization: `bearer ${token}`,
@@ -198,16 +200,7 @@ const PlaceOrder = () => {
   //     window.location.replace(session_url)
 
   //   } catch (error) {
-  //     toast.error(error?.response?.data?.message||error.message || "Error Occurred! Try Again", {
-  //       position: "top-right",
-  //       autoClose: 2000,
-  //       hideProgressBar: true,
-  //       closeOnClick: false,
-  //       pauseOnHover: true,
-  //       draggable: true,
-  //       progress: undefined,
-  //       theme: "light",
-  //     });
+  //     toast.error(error?.response?.data?.message || error.message || "Error Occurred! Try Again", toastConfig);
   //   }
   // };
 
@@ -250,8 +243,12 @@ const PlaceOrder = () => {
       validateInput();
 
       switch (method) {
-        case "cod":
+        case 'cod':
           withCod();
+          break;
+        
+        case 'stripe':
+          withStripe()
           break;
       }
 
@@ -375,9 +372,9 @@ const PlaceOrder = () => {
           <div className="flex gap-3 flex-col lg:flex-row ">
 
             {/* Stripe payment Gateway */}
+{/* 
 
-
-            {/* <div
+            <div
               onClick={() => {
                 setPaymentMethod("stripe");
               }}
