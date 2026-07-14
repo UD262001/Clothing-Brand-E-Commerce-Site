@@ -43,7 +43,7 @@ export const loginUser = asyncHandler(async (req,res,next) => {
     
     res.cookie('foreverRefresh', refreshToken, {
         httpOnly: true,
-        sameSite: 'lax',
+        sameSite: 'none',
         secure: serverConfig.NODE_ENV === 'production',
         maxAge:7*24*60*60*1000
     })
@@ -95,7 +95,7 @@ export const registerUser = asyncHandler(async (req, res,next) => {
 
         res.cookie('foreverRefresh', refreshToken, {
         httpOnly: true,
-        sameSite: 'lax',
+        sameSite: 'none',
         secure: serverConfig.NODE_ENV === 'production',
         maxAge:7*24*60*60*1000
         })
@@ -152,7 +152,7 @@ export const onRefresh = asyncHandler(async (req, res, next) => {
     res.cookie('foreverRefresh', refreshToken, {
         httpOnly: true,
         secure: serverConfig.NODE_ENV === 'production',
-        sameSite: 'lax',
+        sameSite: 'none',
         maxAge:7*24*60*60*1000
     })
     
@@ -200,7 +200,7 @@ export const adminLogin = asyncHandler(async (req, res,next) => {
 
         res.cookie('adminRefresh', refreshToken, {
         httpOnly: true,
-        sameSite: 'lax',
+        sameSite: 'none',
         secure: serverConfig.NODE_ENV === 'production',
         maxAge:7*24*60*60*1000
     })
@@ -242,7 +242,7 @@ export const onRefreshAdmin = asyncHandler(async (req, res, next) => {
 
         res.cookie('adminRefresh', newRefreshToken, {
         httpOnly: true,
-        sameSite: 'lax',
+        sameSite: 'none',
         secure: serverConfig.NODE_ENV === 'production',
         maxAge:7*24*60*60*1000
     })
