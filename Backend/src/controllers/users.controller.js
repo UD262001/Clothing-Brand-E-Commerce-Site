@@ -173,7 +173,11 @@ export const logout = asyncHandler(async (req,res,next) => {
 
     await blackeListTokenModel.create({ token, userId: user._id })
 
-    res.clearCookie('foreverRefresh')
+    res.clearCookie('foreverRefresh',{
+        httpOnly: true,
+        secure: serverConfig.NODE_ENV === 'production',
+        sameSite: 'none',
+    })
     
     res.status(200).json({
         success: true,
