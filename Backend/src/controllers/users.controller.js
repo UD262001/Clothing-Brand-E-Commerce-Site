@@ -264,7 +264,11 @@ export const adminLogout = asyncHandler(async(req, res, next) => {
 
     await blackeListTokenModel.create({token,userId})
     
-    res.clearCookie('adminRefresh')
+    res.clearCookie('adminRefresh'),{
+        httpOnly: true,
+        secure: serverConfig.NODE_ENV === 'production',
+        sameSite: 'none',
+    }
 
     res.status(200).json({
         success: false,
