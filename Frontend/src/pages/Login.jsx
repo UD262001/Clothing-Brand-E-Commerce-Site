@@ -34,12 +34,12 @@ const Login = () => {
     try {
       const response =
         currentState === "Sign Up"
-          ? await axios.post("http://localhost:5000/api/users/register", {
+          ? await axios.post(`${import.meta.env.VITE_BACKEND_URL}/api/users/register`, {
               name,
               email,
               password,
             },{withCredentials:true})
-          : await axios.post("http://localhost:5000/api/users/login", {
+          : await axios.post(`${import.meta.env.VITE_BACKEND_URL}/api/users/login`, {
               email,
               password,
           },{withCredentials:true});
