@@ -173,9 +173,18 @@ export const onRefresh = asyncHandler(async (req, res, next) => {
 export const logout = asyncHandler(async (req,res,next) => {
     
     const { token, user } = req
+    
+    const refreshToken = req.cookies.foreverRefresh
 
-    await blackeListTokenModel.create({ token, userId: user._id })
-
+    await Promise.all(
+  [token, refreshToken].map((currentToken) =>
+    blackeListTokenModel.create({
+      token: currentToken,
+      userId: user._id,
+    })
+  )
+    );
+    
     res.clearCookie('foreverRefresh',{ 
         httpOnly: true,
         sameSite: serverConfig.NODE_ENV === 'production'?'none':'strict',
@@ -231,6 +240,7 @@ export const adminLogin = asyncHandler(async (req, res,next) => {
 // For admin 
 
 export const onRefreshAdmin = asyncHandler(async (req, res, next) => {
+
     const token = req.cookies.adminRefresh
 
     if (!token) {
@@ -270,9 +280,17 @@ export const onRefreshAdmin = asyncHandler(async (req, res, next) => {
 export const adminLogout = asyncHandler(async(req, res, next) => {
 
     const { token, userId } = req
-    
 
-    await blackeListTokenModel.create({token,userId})
+    const refreshToken = req.cookies.adminRefresh
+
+    await Promise.all(
+  [token, refreshToken].map((currentToken) =>
+    blackeListTokenModel.create({
+      token: currentToken,
+      userId: user._id,
+    })
+  )
+);
     
     res.clearCookie('adminRefresh',{
         httpOnly: true,
