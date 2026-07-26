@@ -12,7 +12,7 @@ const app = express()
 
 app.use(express.json())
 app.use(cors({
-  origin: ['https://forever-clothing-six.vercel.app', 'http://localhost:5174'],
+  origin: ['https://forever-clothing-six.vercel.app', 'https://forever-clothing-admin-seven.vercel.app'],
   credentials:true
 }))
 app.use(express.urlencoded({ extended: true }))
