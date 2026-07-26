@@ -287,7 +287,7 @@ export const adminLogout = asyncHandler(async(req, res, next) => {
   [token, refreshToken].map((currentToken) =>
     blackeListTokenModel.create({
       token: currentToken,
-      userId: user._id,
+      userId: userId,
     })
   )
 );
