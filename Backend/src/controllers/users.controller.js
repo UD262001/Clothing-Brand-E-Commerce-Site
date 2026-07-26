@@ -181,7 +181,6 @@ export const logout = asyncHandler(async (req,res,next) => {
         sameSite: 'none',
         secure: serverConfig.NODE_ENV === 'production',
         path: '/',
-        maxAge:7*24*60*60*1000
     })
     
     res.status(200).json({
@@ -280,7 +279,6 @@ export const adminLogout = asyncHandler(async(req, res, next) => {
         sameSite: 'none',
         secure: serverConfig.NODE_ENV === 'production',
         path: '/',
-        maxAge:7*24*60*60*1000
     })
 
     res.status(200).json({
