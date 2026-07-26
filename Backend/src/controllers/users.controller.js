@@ -175,8 +175,9 @@ export const logout = asyncHandler(async (req,res,next) => {
 
     res.clearCookie('foreverRefresh',{
         httpOnly: true,
-        secure: serverConfig.NODE_ENV === 'production',
         sameSite: 'none',
+        secure: serverConfig.NODE_ENV === 'production',
+        maxAge:7*24*60*60*1000
     })
     
     res.status(200).json({
@@ -268,11 +269,12 @@ export const adminLogout = asyncHandler(async(req, res, next) => {
 
     await blackeListTokenModel.create({token,userId})
     
-    res.clearCookie('adminRefresh'),{
+    res.clearCookie('adminRefresh',{
         httpOnly: true,
-        secure: serverConfig.NODE_ENV === 'production',
         sameSite: 'none',
-    }
+        secure: serverConfig.NODE_ENV === 'production',
+        maxAge:7*24*60*60*1000
+    })
 
     res.status(200).json({
         success: false,
