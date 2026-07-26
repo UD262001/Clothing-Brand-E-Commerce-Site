@@ -43,7 +43,7 @@ export const loginUser = asyncHandler(async (req,res,next) => {
     
     res.cookie('foreverRefresh', refreshToken, {
         httpOnly: true,
-        sameSite: 'none',
+        sameSite: serverConfig.NODE_ENV === 'production'?'none':'strict',
         secure: serverConfig.NODE_ENV === 'production',
         path: '/',
         maxAge:7*24*60*60*1000
@@ -96,7 +96,7 @@ export const registerUser = asyncHandler(async (req, res,next) => {
 
         res.cookie('foreverRefresh', refreshToken, {
         httpOnly: true,
-        sameSite: 'none',
+        sameSite: serverConfig.NODE_ENV === 'production'?'none':'strict',
         secure: serverConfig.NODE_ENV === 'production',
         path: '/',
         maxAge:7*24*60*60*1000
@@ -154,7 +154,7 @@ export const onRefresh = asyncHandler(async (req, res, next) => {
     res.cookie('foreverRefresh', refreshToken, {
         httpOnly: true,
         secure: serverConfig.NODE_ENV === 'production',
-        sameSite: 'none',
+        sameSite: serverConfig.NODE_ENV === 'production'?'none':'strict',
         path: '/',
         maxAge:7*24*60*60*1000
     })
@@ -176,9 +176,9 @@ export const logout = asyncHandler(async (req,res,next) => {
 
     await blackeListTokenModel.create({ token, userId: user._id })
 
-    res.clearCookie('foreverRefresh',{
+    res.clearCookie('foreverRefresh',{ 
         httpOnly: true,
-        sameSite: 'none',
+        sameSite: serverConfig.NODE_ENV === 'production'?'none':'strict',
         secure: serverConfig.NODE_ENV === 'production',
         path: '/',
     })
@@ -208,7 +208,7 @@ export const adminLogin = asyncHandler(async (req, res,next) => {
 
         res.cookie('adminRefresh', refreshToken, {
         httpOnly: true,
-        sameSite: 'none',
+        sameSite: serverConfig.NODE_ENV === 'production'?'none':'strict',
         secure: serverConfig.NODE_ENV === 'production',
         path: '/',
         maxAge:7*24*60*60*1000
@@ -251,7 +251,7 @@ export const onRefreshAdmin = asyncHandler(async (req, res, next) => {
 
         res.cookie('adminRefresh', newRefreshToken, {
         httpOnly: true,
-        sameSite: 'none',
+        sameSite: serverConfig.NODE_ENV === 'production'?'none':'strict',
         secure: serverConfig.NODE_ENV === 'production',
         path: '/',
         maxAge:7*24*60*60*1000
@@ -276,7 +276,7 @@ export const adminLogout = asyncHandler(async(req, res, next) => {
     
     res.clearCookie('adminRefresh',{
         httpOnly: true,
-        sameSite: 'none',
+        sameSite: serverConfig.NODE_ENV === 'production'?'none':'strict',
         secure: serverConfig.NODE_ENV === 'production',
         path: '/',
     })
