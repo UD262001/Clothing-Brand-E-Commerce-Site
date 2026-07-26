@@ -45,6 +45,7 @@ export const loginUser = asyncHandler(async (req,res,next) => {
         httpOnly: true,
         sameSite: 'none',
         secure: serverConfig.NODE_ENV === 'production',
+        path: '/',
         maxAge:7*24*60*60*1000
     })
 
@@ -97,6 +98,7 @@ export const registerUser = asyncHandler(async (req, res,next) => {
         httpOnly: true,
         sameSite: 'none',
         secure: serverConfig.NODE_ENV === 'production',
+        path: '/',
         maxAge:7*24*60*60*1000
         })
     
@@ -153,6 +155,7 @@ export const onRefresh = asyncHandler(async (req, res, next) => {
         httpOnly: true,
         secure: serverConfig.NODE_ENV === 'production',
         sameSite: 'none',
+        path: '/',
         maxAge:7*24*60*60*1000
     })
     
@@ -177,6 +180,7 @@ export const logout = asyncHandler(async (req,res,next) => {
         httpOnly: true,
         sameSite: 'none',
         secure: serverConfig.NODE_ENV === 'production',
+        path: '/',
         maxAge:7*24*60*60*1000
     })
     
@@ -207,6 +211,7 @@ export const adminLogin = asyncHandler(async (req, res,next) => {
         httpOnly: true,
         sameSite: 'none',
         secure: serverConfig.NODE_ENV === 'production',
+        path: '/',
         maxAge:7*24*60*60*1000
     })
 
@@ -249,6 +254,7 @@ export const onRefreshAdmin = asyncHandler(async (req, res, next) => {
         httpOnly: true,
         sameSite: 'none',
         secure: serverConfig.NODE_ENV === 'production',
+        path: '/',
         maxAge:7*24*60*60*1000
     })
 
@@ -273,6 +279,7 @@ export const adminLogout = asyncHandler(async(req, res, next) => {
         httpOnly: true,
         sameSite: 'none',
         secure: serverConfig.NODE_ENV === 'production',
+        path: '/',
         maxAge:7*24*60*60*1000
     })
 
