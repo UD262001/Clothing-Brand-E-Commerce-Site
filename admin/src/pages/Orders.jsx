@@ -3,7 +3,6 @@ import { useEffect, useState } from "react";
 import axios from "axios";
 import { toast } from "react-toastify";
 import { assets } from "../assets/admin_assets/assets.js";
-import { ShopContext } from "../../../Frontend/src/context/ShopContext.jsx";
 
 const Orders = ({ token }) => {
   const [orders, setOrders] = useState([]);
