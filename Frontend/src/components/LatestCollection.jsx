@@ -8,7 +8,7 @@ const LatestCollection = () => {
 
     const { products } = useContext(ShopContext)
 
-    const latestProduct = useMemo(()=>products.slice(0.10),[products])
+    const latestProduct = useMemo(()=>products.slice(0,10),[products])
     
     
 
